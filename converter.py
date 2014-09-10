@@ -59,11 +59,11 @@ def output_image_c_array(width, height, pixel_data, crossover, invert):
         next_value = 0
 
         for x in range(0, width):
-            if(x % 8 == 0 and x > 0):
+            if x % 8 == 0 and x > 0:
                 next_line += str('0x%0.2X' % next_value).lower() + ","
                 next_value = 0
 
-            if(get_pixel_intensity(pixel_data[x, y], invert) > crossover):
+            if get_pixel_intensity(pixel_data[x, y], invert) > crossover:
                 next_value += 2 ** (7 - (x % 8))
 
         print next_line
@@ -76,10 +76,6 @@ def convert(args):
     """
 
     width, height, image_data = load_image(args.image, args.width, args.height)
-
-    print 'Width', width
-    print 'Height', height
-
     crossover_intensity = get_average_pixel_intensity(width, height, image_data, args.invert)
     output_image_c_array(width, height, image_data, crossover_intensity, args.invert)
 
