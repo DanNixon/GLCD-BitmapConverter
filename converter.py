@@ -19,12 +19,19 @@ def get_pixel_intensity(pixel, invert=False, max_value=255):
     """
     Gets the average intensity of a pixel.
     """
+    intensity = 0
 
-    intensity = pixel[0]
-    intensity += pixel[1]
-    intensity += pixel[2]
-
-    intensity /= 3
+    # Pixel is multi channel
+    if type(pixel) is list or type(pixel) is tuple:
+        for channel_intensity in pixel:
+            intensity += channel_intensity
+        intensity /= len(pixel)
+    # Pixel is single channel
+    elif type(pixel) is int or type(pixel) is float:
+        intensity = pixel
+    # Pixel is magic
+    else:
+        raise ValueError('Not a clue what format the pixel data is: ' + str(type(pixel)))
 
     if invert:
         return max_value - intensity
