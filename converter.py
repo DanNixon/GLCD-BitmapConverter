@@ -66,7 +66,7 @@ def output_image_c_array(width, height, pixel_data, crossover, invert):
         next_value = 0
 
         for x in range(0, width):
-            if x % 8 == 0 and x > 0:
+            if (x % 8 == 0 or x == width - 1) and x > 0:
                 next_line += str('0x%0.2X' % next_value).lower() + ","
                 next_value = 0
 
@@ -83,7 +83,10 @@ def convert(args):
     """
 
     width, height, image_data = load_image(args.image, args.width, args.height)
-    crossover_intensity = get_average_pixel_intensity(width, height, image_data, args.invert)
+    if args.threshold == 0:
+        crossover_intensity = get_average_pixel_intensity(width, height, image_data, args.invert)
+    else:
+        crossover_intensity = args.threshold
     output_image_c_array(width, height, image_data, crossover_intensity, args.invert)
 
 if __name__ == '__main__':
@@ -93,6 +96,12 @@ if __name__ == '__main__':
             '-i', '--invert',
             action='store_true',
             help='Invert image intensity')
+
+    parser.add_argument(
+            '--threshold',
+            default=0,
+            type=int,
+            help='BW pixel intensity threshold')
 
     parser.add_argument(
             '--width',
