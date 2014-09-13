@@ -1,6 +1,5 @@
 from PIL import Image
 import argparse
-import sys
 
 
 def load_image(filename, target_width, target_height):
@@ -46,13 +45,14 @@ def get_average_pixel_intensity(width, height, pixel_data, invert):
 
     avg_intensity = 0
 
-    for x in range(0, width):
-        for y in range(0, height):
-            avg_intensity += get_pixel_intensity(pixel_data[x, y], invert)
+    for x_idx in range(0, width):
+        for y_idx in range(0, height):
+            avg_intensity += get_pixel_intensity(pixel_data[x_idx, y_idx], invert)
 
     avg_intensity = avg_intensity / (width * height)
 
     return avg_intensity
+
 
 def output_image_c_array(width, height, pixel_data, crossover, invert):
     """
@@ -61,35 +61,40 @@ def output_image_c_array(width, height, pixel_data, crossover, invert):
 
     print '{'
 
-    for y in range(0, height):
+    for y_idx in range(0, height):
         next_line = ''
         next_value = 0
 
-        for x in range(0, width):
-            if (x % 8 == 0 or x == width - 1) and x > 0:
+        for x_idx in range(0, width):
+            if (x_idx % 8 == 0 or x_idx == width - 1) and x_idx > 0:
                 next_line += str('0x%0.2X' % next_value).lower() + ","
                 next_value = 0
 
-            if get_pixel_intensity(pixel_data[x, y], invert) > crossover:
-                next_value += 2 ** (7 - (x % 8))
+            if get_pixel_intensity(pixel_data[x_idx, y_idx], invert) > crossover:
+                next_value += 2 ** (7 - (x_idx % 8))
 
         print next_line
 
     print '};'
 
-def convert(args):
+
+def convert(params):
     """
     Runs an image conversion.
     """
 
-    width, height, image_data = load_image(args.image, args.width, args.height)
-    if args.threshold == 0:
-        crossover_intensity = get_average_pixel_intensity(width, height, image_data, args.invert)
+    width, height, image_data = load_image(params.image, params.width, params.height)
+    if params.threshold == 0:
+        crossover_intensity = get_average_pixel_intensity(width, height, image_data, params.invert)
     else:
-        crossover_intensity = args.threshold
-    output_image_c_array(width, height, image_data, crossover_intensity, args.invert)
+        crossover_intensity = params.threshold
+    output_image_c_array(width, height, image_data, crossover_intensity, params.invert)
 
-if __name__ == '__main__':
+
+def run():
+    """
+    Gets parameters and runs conversion.
+    """
     parser = argparse.ArgumentParser(description='Convert a bitmap image to a C array for GLCDs')
 
     parser.add_argument(
@@ -120,6 +125,9 @@ if __name__ == '__main__':
             type=str,
             help='Image file to convert')
 
-    args = parser.parse_args()
+    params = parser.parse_args()
+    convert(params)
 
-    convert(args)
+
+if __name__ == '__main__':
+    run()
